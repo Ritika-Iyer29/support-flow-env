@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from typing import Any, Dict
 
 # Import your custom logic and models
-from core import SupportFlowEnv
-from models import Action, Observation, ActionRequest, State
+from .core import SupportFlowEnv
+from .models import Action, Observation, ActionRequest, State
 
 app = FastAPI(title="SupportFlow OpenEnv Service")
 
