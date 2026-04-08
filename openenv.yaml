@@ -1,0 +1,24 @@
+version: "1.0"
+name: "support-flow-crm"
+description: "A real-world CRM and Logistics simulation for customer support agents."
+entry_point: "app:app"
+docker_image: "support-flow-v1"
+
+tasks:
+  - id: "easy_tracking"
+    name: "Retrieve Tracking Number"
+    difficulty: "easy"
+    description: "Find the tracking number for customer@example.com."
+    max_steps: 5
+  
+  - id: "medium_policy_check"
+    name: "Refund Eligibility Audit"
+    difficulty: "medium"
+    description: "Determine if order ord_101 is eligible for a refund based on shipping status."
+    max_steps: 8
+
+  - id: "hard_full_resolution"
+    name: "Lost Package Resolution"
+    difficulty: "hard"
+    description: "Identify that ord_101 is lost, issue a refund, and notify the customer."
+    max_steps: 10
