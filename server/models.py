@@ -29,7 +29,7 @@ class Reward(BaseModel):
     The Reward model tracks progress. 
     OpenEnv expects a float between 0.0 and 1.0.
     """
-    value: float = Field(0.0, ge=0.0, le=1.0, description="The reward score for the current step.")
+    value: float = Field(0.0, ge=-1.0, le=1.0, description="The reward score for the current step.")
     explanation: Optional[str] = Field(None, description="Why this reward was given (useful for debugging).")
 
 class State(BaseModel):
