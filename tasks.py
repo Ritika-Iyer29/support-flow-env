@@ -1,57 +1,30 @@
 from typing import Dict, Any, List
-from models import State
+from .models import State
 
 class SupportFlowGrader:
-    """
-    Programmatic grader to ensure the agent didn't just 'talk' 
-    but actually performed the correct backend actions.
-    """
-
     @staticmethod
     def grade_easy(state: State, last_message: str) -> float:
-        """
-        Task: Retrieve Tracking Number for customer@example.com
-        Criteria: Must mention 'TRK_7721' in the final response.
-        """
-        # Did the agent provide the correct tracking ID in their response?
+        # Instead of 1.0, return 0.9. Instead of 0.0, return 0.1
         if "TRK_7721" in last_message.upper():
-            return 1.0
-        return 0.0
+            return 0.9
+        return 0.1
 
     @staticmethod
     def grade_medium(state: State, last_message: str) -> float:
-        """
-        Task: Refund Eligibility Audit
-        Criteria: Agent must confirm status is LOST.
-        Score: 0.5 for checking tracking, 1.0 for correct verbal confirmation.
-        """
-        score = 0.0
-        # Check if they at least called the tracking tool (partial progress)
-        # We can track this by looking at step history or if they reached a certain state
+        score = 0.1 # Minimum non-zero score
         if state.step_count > 1:
-            score += 0.4
-        
-        # Did they give the correct answer? (Yes, it is lost/eligible)
+            score += 0.3
         if any(word in last_message.upper() for word in ["ELIGIBLE", "YES", "LOST"]):
-            score += 0.6
-            
-        return min(score, 1.0)
+            score += 0.5
+        return score # Results in 0.1, 0.4, or 0.9
 
     @staticmethod
     def grade_hard(state: State, last_message: str) -> float:
-        """
-        Task: Lost Package Resolution
-        Criteria: MUST call issue_refund tool AND notify customer.
-        """
-        # If they didn't trigger the refund tool in core.py, they fail.
         if not state.refund_processed:
-            return 0.0
-        
-        # If they refunded AND sent a closing message
+            return 0.1
         if state.refund_processed and len(last_message) > 5:
-            return 1.0
-        
-        return 0.5 # Refunded but forgot to tell the customer
+            return 0.95 # Maximum non-one score
+        return 0.5
 
 class TaskManager:
     """
