@@ -1,6 +1,6 @@
 import asyncio
 from typing import Tuple, Dict, Any
-from models import Action, Observation, Reward, State
+from .models import Action, Observation, Reward, State
 
 class SupportFlowEnv:
     def __init__(self):
@@ -51,7 +51,7 @@ class SupportFlowEnv:
             user = next((u for u in self.state.users if u["email"] == email), None)
             if user:
                 display = f"USER_FOUND: {user['name']} | ID: {user['id']} | Address: {user['address']}"
-                reward = 0.2  # Partial reward for finding the customer
+                reward = 0.1  # Adjusted from 0.2
             else:
                 display = "ERROR: No user found with that email."
                 error = "user_not_found"
@@ -62,7 +62,7 @@ class SupportFlowEnv:
             order = next((o for o in self.state.orders if o["id"] == order_id), None)
             if order:
                 display = f"ORDER_INFO: Item: {order['item']} | Amount: ${order['amount']} | Status: {order['status']}"
-                reward = 0.2
+                reward = 0.1 # Adjusted from 0.2
             else:
                 display = "ERROR: Invalid Order ID."
                 error = "invalid_order_id"
@@ -73,7 +73,7 @@ class SupportFlowEnv:
             shipment = next((s for s in self.state.shipments if s["order_id"] == order_id), None)
             if shipment:
                 display = f"TRACKING_REPORT: ID: {shipment['tracking_id']} | STATUS: {shipment['status']} | Last Loc: {shipment['location']}"
-                reward = 0.3 # Higher reward for investigating the root cause (the loss)
+                reward = 0.2 # Adjusted from 0.3
             else:
                 display = "ERROR: No shipping data for this order."
                 error = "no_tracking"
@@ -88,10 +88,10 @@ class SupportFlowEnv:
             if shipment and shipment["status"] == "LOST":
                 self.state.refund_processed = True
                 display = f"SUCCESS: Refund of ${order['amount']} processed for Order {order_id}."
-                reward = 0.5 
+                reward = 0.4  # Adjusted from 0.5
             else:
                 display = "REFUND_DENIED: Policy requires 'LOST' status for automated refunds."
-                reward = -0.2 # Penalty for trying to refund without justification
+                reward = 0.05 # Penalty adjusted to be strictly > 0.0
                 error = "policy_violation"
 
         # 5. TOOL: Respond (Final Action)
@@ -99,11 +99,12 @@ class SupportFlowEnv:
             message = params.get("message", "")
             display = f"SENT TO CUSTOMER: {message}"
             done = True
-            # Final logic check: Did they actually solve the problem?
+            
+            # Success/Failure must stay within (0, 1)
             if self.state.refund_processed:
-                reward = 1.0 # Max reward
+                reward = 0.95
             else:
-                reward = 0.0 # Failed task
+                reward = 0.05
         
         else:
             display = f"UNKNOWN_COMMAND: {cmd}"
