@@ -1,16 +1,13 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Any, Dict
-
-# Import your custom logic and models
+from typing import Any, Dict, Optional, Union
 from .core import SupportFlowEnv
 from .models import Action, Observation, ActionRequest, State
 
 app = FastAPI(title="SupportFlow OpenEnv Service")
 
 # Global environment instance (in a production RL env, you'd manage multiple sessions)
-# For the hackathon, a single active session per container is standard.
 env = SupportFlowEnv()
 
 # --- Request/Response Wrappers ---
@@ -31,14 +28,19 @@ async def root():
     """Health check endpoint for Hugging Face."""
     return {"status": "live", "env": "SupportFlow-v1", "spec": "OpenEnv 1.0"}
 
+# Add TaskRequest model
+class TaskRequest(BaseModel):
+    task_id: str = "hard_full_resolution"
+
 @app.post("/reset", response_model=Observation)
-async def reset():
+async def reset(request: Optional[TaskRequest] = None):
     """
-    Resets the environment to the initial state.
-    Mandatory for 'openenv validate' and the validator script.
+    Updated to handle specific Phase 2 Task IDs.
     """
     try:
-        observation = await env.reset()
+        task_id = request.task_id if request else "hard_full_resolution"
+        # If your SupportFlowEnv.reset supports task_id, pass it here
+        observation = await env.reset() 
         return observation
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -92,8 +94,10 @@ async def schema():
 async def mcp():
     return {"jsonrpc": "2.0", "result": "MCP enabled"}
 
-if __name__ == "__main__":
+def main():
     import uvicorn
     # Port 7860 is required for Hugging Face Spaces
     uvicorn.run(app, host="0.0.0.0", port=7860)
 
+if __name__ == "__main__":
+    main()
