@@ -2,9 +2,7 @@
 name = "support-flow-crm"
 version = "0.1.0"
 description = "Enterprise CRM triage environment for logistics resolution."
-authors = [
-    {name = "Ritika Iyer"}
-]
+authors = [{name = "Ritika Iyer"}]
 dependencies = [
     "fastapi",
     "uvicorn",
@@ -14,10 +12,13 @@ dependencies = [
     "openenv-core"
 ]
 
+[project.scripts]
+server = "server.app:main"
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.openenv]
 mode = "simulation"
-entry_point = "app:app"
+entry_point = "server.app:app"
